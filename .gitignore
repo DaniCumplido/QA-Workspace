@@ -1,0 +1,22 @@
+# Dependencias
+node_modules/
+.pnp
+.pnp.js
+
+# Variables de entorno (¡MUY IMPORTANTE NO SUBIR ESTO!)
+.env
+.env.local
+.env.*.local
+
+# Build y producción
+dist/
+build/
+.vercl
+
+# Logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Varios
+.DS_Store

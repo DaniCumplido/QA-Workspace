@@ -1,0 +1,101 @@
+// Configuración de conexión
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+// --- ENUMS ---
+enum Role {
+  ADMIN
+  MANAGER
+  TESTER
+}
+
+enum ProjectStatus {
+  RECIBIDO
+  EN_CURSO
+  CERRADO
+}
+
+enum TestStatus {
+  PENDING
+  PASSED
+  FAILED
+}
+
+enum IssueStatus {
+  OPEN
+  ANALISIS
+  RESOLVED
+  CLOSED
+}
+
+enum Severity {
+  BAJA
+  MEDIA
+  ALTA
+}
+
+// --- MODELOS ---
+
+model Profile {
+  id        String    @id @default(uuid()) // ID que vendrá de Supabase Auth
+  email     String    @unique
+  full_name String?
+  role      Role      @default(TESTER)
+  projects  Project[] @relation("ResponsibleTester")
+  createdAt DateTime  @default(now())
+}
+
+model Project {
+  id          String        @id @default(uuid())
+  name        String
+  description String?
+  status      ProjectStatus @default(RECIBIDO)
+  testerId    String?       // FK para el tester asignado
+  tester      Profile?      @relation("ResponsibleTester", fields: [testerId], references: [id])
+  testCases   TestCase[]
+  issues      Issue[]
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+}
+
+model TestCase {
+  id          String     @id @default(uuid())
+  title       String
+  steps       String?    @db.Text
+  expected    String?    @db.Text
+  status      TestStatus @default(PENDING)
+  projectId   String
+  project     Project    @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  issue       Issue?     // Relación 1:1 con Incidencia si falla
+  createdAt   DateTime   @default(now())
+}
+
+model Issue {
+  id          String      @id @default(uuid())
+  title       String
+  description String?     @db.Text
+  severity    Severity    @default(MEDIA)
+  status      IssueStatus @default(OPEN)
+  testCaseId  String      @unique // 1:1 con el test que falló
+  testCase    TestCase    @relation(fields: [testCaseId], references: [id], onDelete: Cascade)
+  projectId   String
+  project     Project     @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  createdAt   DateTime    @default(now())
+}
+
+model AuditLog {
+  id            String   @id @default(uuid())
+  userName      String
+  userEmail     String
+  entityName    String   // Nombre del proyecto, test o incidencia
+  entityType    String   // "PROJECT", "TEST", "ISSUE"
+  oldState      String?
+  newState      String
+  createdAt     DateTime @default(now())
+}

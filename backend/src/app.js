@@ -15,7 +15,9 @@ app.get("/", (req, res) => {
 
 app.use(cors())
 app.use(express.json())
-app.use(userRoutes)
+
+// Añadimos las rutas del router para usuarios
+app.use("/api/users", userRoutes)
 
 const PORT = "3000";
 app.listen(PORT, () => {

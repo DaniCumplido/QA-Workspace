@@ -1,7 +1,8 @@
-// src/App.jsx
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import MainLayout from "./layouts/MainLayout";
 import Equipo from "./pages/Equipo";
+import Login from "./pages/Login";
+import Register from "./pages/Register";
 
 function App() {
   return (
@@ -10,12 +11,12 @@ function App() {
         {/* RUTA PADRE: El Layout envuelve a los hijos */}
         <Route element={<MainLayout />}>
           <Route path="/equipo" element={<Equipo />} />
-          {/* Aquí irán Proyectos, Dashboard, etc. */}
           <Route path="/" element={<Navigate to="/equipo" replace />} />
         </Route>
 
-        {/* RUTAS FUERA DEL LAYOUT (Como el Login) */}
-        {/* <Route path="/login" element={<Login />} /> */}
+        {/* RUTAS FUERA DEL LAYOUT */}
+        <Route path="/register" element={<Register />} />
+        <Route path="/login" element={<Login />} />
       </Routes>
     </BrowserRouter>
   );

@@ -4,6 +4,7 @@ import { SearchInput } from "../components/ui/SearchInput";
 import { ChevronDownIcon } from '@heroicons/react/16/solid'
 import { SlideOver } from "../components/ui/SideOver";
 import { Table } from "../components/ui/Table";
+import { useSearch } from "../hooks/useSearch";
 
 export default function Equipo() {
     const [users, setUsers] = useState([]);
@@ -24,14 +25,7 @@ export default function Equipo() {
         loadUsers();
     }, []); // El array vacío asegura que solo pida los datos una vez
 
-    const [search, setSearch] = useState("");
-
-    const filteredUsers = users.filter((user) => {
-        const term = search.toLowerCase();
-        return (
-            user.full_name.toLowerCase().includes(term) || user.email.toLowerCase().includes(term)
-        )
-    })
+    const { search, setSearch, filteredItems: filteredUsers } = useSearch( users, ["full_name", "email"] );
 
     const [open, setOpen] = useState(false);
 

@@ -1,24 +1,57 @@
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import { AuthProvider } from "./context/AuthContext";
+import { useAuth } from "./hooks/useAuth";
 import MainLayout from "./layouts/MainLayout";
 import Equipo from "./pages/Equipo";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
+import Dashboard from "./pages/Dashboard";
+
+// Componente para proteger rutas (R01F02-T01)
+const ProtectedRoute = ({ children }) => {
+  const { user, loading } = useAuth();
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center min-h-screen bg-gray-900">
+        <div className="text-white">Cargando sesión...</div>
+      </div>
+    );
+  }
+
+  if (!user) {
+    return <Navigate to="/login" replace />;
+  }
+
+  return children;
+};
 
 function App() {
   return (
-    <BrowserRouter>
-      <Routes>
-        {/* RUTA PADRE: El Layout envuelve a los hijos */}
-        <Route element={<MainLayout />}>
-          <Route path="/equipo" element={<Equipo />} />
-          <Route path="/" element={<Navigate to="/equipo" replace />} />
-        </Route>
+    <AuthProvider> {/* Proveedor de contexto global */}
+      <BrowserRouter>
+        <Routes>
+          
+          {/* RUTAS PRIVADAS (Requieren login) */}
+          <Route element={
+            <ProtectedRoute>
+              <MainLayout />
+            </ProtectedRoute>
+          }>
+            <Route path="/" element={<Dashboard />} />
+            <Route path="/equipo" element={<Equipo />} />
+          </Route>
 
-        {/* RUTAS FUERA DEL LAYOUT */}
-        <Route path="/register" element={<Register />} />
-        <Route path="/login" element={<Login />} />
-      </Routes>
-    </BrowserRouter>
+          {/* RUTAS PÚBLICAS */}
+          <Route path="/register" element={<Register />} />
+          <Route path="/login" element={<Login />} />
+          
+          {/* Catch-all: si la ruta no existe */}
+          <Route path="*" element={<Navigate to="/" replace />} />
+          
+        </Routes>
+      </BrowserRouter>
+    </AuthProvider>
   );
 }
 

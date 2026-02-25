@@ -41,13 +41,6 @@ export default function Equipo() {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        
-        // Aquí puedes ejecutar tu lógica de validación antes del fetch
-        if (formData.full_name.length < 3) {
-             setErrors(prev => ({...prev, full_name: "Nombre muy corto"}));
-             return;
-        }
-
         setErrors({})
         let newErrors = {};
 

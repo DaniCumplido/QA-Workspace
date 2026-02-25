@@ -1,6 +1,9 @@
 import { Outlet } from "react-router";
+import { useAuth } from "../hooks/useAuth";
 
 function MainLayout() {
+    const { user } = useAuth();
+
     return (
         <div className="flex min-h-screen">
             {/* SIDEBAR */}
@@ -20,7 +23,7 @@ function MainLayout() {
                 {/* HEADER */}
                 <header className="flex items-center justify-end h-16 px-8 bg-white border-b">
                     <div className="flex items-center space-x-4">
-                        <span className="text-sm font-medium text-gray-600">Dani (Admin)</span>
+                        <span className="text-sm font-medium text-gray-600"><span>{user?.email}   ({user?.role})</span></span>
                         <div className="w-8 h-8 bg-blue-100 rounded-full"></div>
                     </div>
                 </header>

@@ -1,12 +1,13 @@
-import { useState } from "react"
-import { supabase } from "../lib/supabase" // Importa tu cliente de Supabase
-import { Link, useNavigate } from "react-router-dom"
+import { useForm } from "../hooks/useForm";
+import { supabase } from "../lib/supabase";
+import { Link, useNavigate } from "react-router-dom";
 
 export default function Login() {
-    const [loading, setLoading] = useState(false);
-    const [formData, setFormData] = useState({ email: '', password: '' });
-    const [errors, setErrors] = useState({});
     const navigate = useNavigate();
+    const { formData, errors, setErrors, loading, setLoading, handleChange } = useForm({
+        email: '',
+        password: ''
+    });
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -32,27 +33,16 @@ export default function Login() {
         }
 
         try {
-            // 3. AUTENTICACIÓN REAL CON SUPABASE
-            const { data, error } = await supabase.auth.signInWithPassword({
-                email: formData.email,
-                password: formData.password,
-            });
-
-            if (error) {
-                setErrors({ auth: "Credenciales inválidas o usuario no encontrado" });
-                return;
-            }
-
-            // Si tiene éxito, redirigimos al Dashboard
-            navigate("/"); 
-            
+            const { error } = await supabase.auth.signInWithPassword(formData);
+            if (error) throw error;
+            navigate("/");
         } catch (error) {
             console.error("Error inesperado:", error);
-            setErrors({ auth: "Ocurrió un error en el servidor" });
+            setErrors({ auth: "Credenciales inválidas" });
         } finally {
             setLoading(false);
         }
-    }
+    };
 
     return (
         <div className="flex flex-col justify-center min-h-screen px-6 py-12 bg-gray-900 lg:px-8">
@@ -82,7 +72,7 @@ export default function Login() {
                         </label>
                         <div className="mt-2">
                             <input
-                                onChange={(e) => setFormData({...formData, email: e.target.value})}
+                                name="email" value={formData.email} onChange={handleChange}
                                 id="email"
                                 type="email"
                                 required
@@ -100,7 +90,7 @@ export default function Login() {
                         </div>
                         <div className="mt-2">
                             <input
-                                onChange={(e) => setFormData({...formData, password: e.target.value})}
+                                name="password" value={formData.password} onChange={handleChange}
                                 id="password"
                                 type="password"
                                 required

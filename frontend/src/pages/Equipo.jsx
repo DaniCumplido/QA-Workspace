@@ -5,6 +5,7 @@ import { ChevronDownIcon } from '@heroicons/react/16/solid'
 import { SlideOver } from "../components/ui/SideOver";
 import { Table } from "../components/ui/Table";
 import { useSearch } from "../hooks/useSearch";
+import { useForm } from "../hooks/useForm";
 
 export default function Equipo() {
     const [users, setUsers] = useState([]);
@@ -29,13 +30,23 @@ export default function Equipo() {
 
     const [open, setOpen] = useState(false);
 
-    const [formData, setFormData] = useState({ full_name: "", email: "", role: "TESTER" });
-
-    const [errors, setErrors] = useState({});
+    const { 
+        formData, 
+        setFormData, 
+        errors, 
+        setErrors, 
+        handleChange, 
+        resetForm 
+    } = useForm({ full_name: "", email: "", role: "TESTER" });
 
     const handleSubmit = async (e) => {
-
         e.preventDefault();
+        
+        // Aquí puedes ejecutar tu lógica de validación antes del fetch
+        if (formData.full_name.length < 3) {
+             setErrors(prev => ({...prev, full_name: "Nombre muy corto"}));
+             return;
+        }
 
         setErrors({})
         let newErrors = {};
@@ -58,17 +69,10 @@ export default function Equipo() {
         }
 
         try {
-            // Hacemos post a la api
             const response = await api.post("/users", formData);
-            // Guardamos el usr generado en el registro que hicimos
-            // Así nos evitamos otra llamada a la api
             setUsers(prev => [...prev, response.data]);
-            // Cerramos el aside
             setOpen(false);
-            // Limpiamos el form data
-            setFormData({ full_name: "", email: "", role: "TESTER" });
-            // Limpiamos el array de errores
-            setErrors({});
+            resetForm(); // <-- Mucho más limpio
         } catch (error) {
             // Validación del lado del servidor (por si el email ya existe)
             if (error.response?.status === 409) {
@@ -77,7 +81,7 @@ export default function Equipo() {
                 console.error("Error al guardar", error);
             }
         }
-    }
+    };
 
     const handleClose = () => {
         setOpen(false);
@@ -134,7 +138,7 @@ export default function Equipo() {
                         <div className="mt-2">
                             <input
                                 required
-                                onChange={(e) => setFormData({ ...formData, full_name: e.target.value })}
+                                value={formData.full_name} onChange={handleChange}
                                 id="full_name"
                                 name="full_name"
                                 type="text"
@@ -154,7 +158,7 @@ export default function Equipo() {
                         <div className="mt-2">
                             <input
                                 required
-                                onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                                value={formData.email} onChange={handleChange}
                                 id="email"
                                 name="email"
                                 type="email"
@@ -174,7 +178,7 @@ export default function Equipo() {
                         <div className="grid grid-cols-1 mt-2">
                             <select
                                 value={formData.role}
-                                onChange={(e) => setFormData({ ...formData, role: e.target.value })}
+                                onChange={handleChange}
                                 id="role"
                                 name="role"
                                 autoComplete="role-name"

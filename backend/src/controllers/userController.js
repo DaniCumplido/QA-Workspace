@@ -40,4 +40,21 @@ const createUser = async (req, res) => {
   }
 };
 
-module.exports = { getAllUsers, createUser };
+// Validar que el email esté registrado
+const validateEmail = async (req, res) => {
+  try {
+    const email = req.params.email;
+
+    const profile = await prisma.profile.findUnique({
+      where: {email}
+    })
+
+    if (!profile) return res.status(404).json({ error: "Email no autorizado" });
+    res.status(200).json(profile);
+  } catch (error) {
+    // 3. Si algo falla, avisamos 
+    res.status(500).json({ error: "Error en el servidor" });
+  }
+}
+
+module.exports = { getAllUsers, createUser, validateEmail };

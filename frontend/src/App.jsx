@@ -2,10 +2,11 @@ import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { AuthProvider } from "./context/AuthContext";
 import { useAuth } from "./hooks/useAuth";
 import MainLayout from "./layouts/MainLayout";
-import Equipo from "./pages/Equipo";
+import Team from "./pages/Team";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
 import Dashboard from "./pages/Dashboard";
+import Projects from "./pages/Projects";
 
 // Componente para proteger rutas (R01F02-T01)
 const ProtectedRoute = ({ children }) => {
@@ -39,7 +40,8 @@ function App() {
             </ProtectedRoute>
           }>
             <Route path="/" element={<Dashboard />} />
-            <Route path="/equipo" element={<Equipo />} />
+            <Route path="/projects" element={<Projects />} />
+            <Route path="/team" element={<Team />} />
           </Route>
 
           {/* RUTAS PÚBLICAS */}

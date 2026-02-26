@@ -3,7 +3,8 @@ require("dotenv").config();
 //Añadimos el paquete express
 const express = require("express");
 const cors = require("cors");
-const userRoutes = require("./routes/userRoutes")
+const userRoutes = require("./routes/user.routes");
+const projectRoutes = require("./routes/project.routes");
 
 const app = express();
 
@@ -18,6 +19,7 @@ app.use(express.json())
 
 // Añadimos las rutas del router para usuarios
 app.use("/api/users", userRoutes)
+app.use("/api/projects", projectRoutes)
 
 const PORT = "3000";
 app.listen(PORT, () => {

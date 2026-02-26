@@ -7,7 +7,7 @@ import { Table } from "../components/ui/Table";
 import { useSearch } from "../hooks/useSearch";
 import { useForm } from "../hooks/useForm";
 
-export default function Equipo() {
+export default function Team() {
     const [users, setUsers] = useState([]);
 
     useEffect(() => {
@@ -86,17 +86,17 @@ export default function Equipo() {
         <div className="space-y-4">
             {/* 1. FILA SUPERIOR: TÍTULO Y BOTÓN)*/}
             <div className="flex items-center justify-between">
-                <h1 className="text-2xl font-bold text-gray-800">Equipo</h1>
+                <h1 className="text-2xl font-bold text-gray-800">Team members</h1>
                 <button onClick={() => setOpen(true)} className="px-4 py-2 text-white transition-colors bg-blue-600 rounded-lg cursor-pointer hover:bg-blue-700">
-                    + Invitar Usuario
+                    + Add user
                 </button>
             </div>
 
             {/* 2. BUSCADOR */}
-            <SearchInput value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Buscar por nombre o email..." />
+            <SearchInput value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Search by name or email..." />
 
             {/* 3. TABLA */}
-            <Table headers={["Nombre", "Email", "Rol"]}>
+            <Table headers={["Name", "Email", "Role"]}>
                 {filteredUsers.map((user) => (
                     <tr key={user.id} className="transition-colors hover:bg-gray-50">
                         <td className="px-6 py-4 text-sm font-medium text-gray-900 whitespace-nowrap">
@@ -120,13 +120,13 @@ export default function Equipo() {
                 open={open}
                 onClose={handleClose}
                 onSave={handleSubmit} // Pasamos la función que dispara el API
-                title="Invitar usuario"
+                title="Add new user"
             >
                 {/* Solo los campos, sin botones ni etiquetas <form> adicionales */}
                 <div className="grid grid-cols-1 mt-10 gap-x-6 gap-y-8 sm:grid-cols-6">
                     <div className="sm:col-span-4">
                         <label htmlFor="name" className="block font-medium text-white text-sm/6">
-                            Nombre y apellidos
+                            Full name
                         </label>
                         <div className="mt-2">
                             <input
@@ -146,7 +146,7 @@ export default function Equipo() {
 
                     <div className="sm:col-span-4">
                         <label htmlFor="email" className="block font-medium text-white text-sm/6">
-                            Correo
+                            Email
                         </label>
                         <div className="mt-2">
                             <input
@@ -166,7 +166,7 @@ export default function Equipo() {
 
                     <div className="sm:col-span-3">
                         <label htmlFor="role" className="block font-medium text-white text-sm/6">
-                            Rol
+                            Role
                         </label>
                         <div className="grid grid-cols-1 mt-2">
                             <select

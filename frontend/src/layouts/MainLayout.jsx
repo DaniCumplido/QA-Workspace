@@ -13,18 +13,18 @@ function MainLayout() {
                 <nav>
                     <ul className="space-y-4">
                         <li className="text-slate-300">
-                            <Link to="/dashboard" className="font-semibold text-indigo-400 hover:text-indigo-300">
+                            <Link to="/" className="font-semibold text-indigo-400 hover:text-indigo-300">
                                 Dashboard
                             </Link>
                         </li>
                         <li className="text-slate-300">
-                            <Link to="/proyectos" className="font-semibold text-indigo-400 hover:text-indigo-300">
+                            <Link to="/projects" className="font-semibold text-indigo-400 hover:text-indigo-300">
                                 Proyectos
                             </Link>
                         </li>
                         {user?.role === "ADMIN" && (
                             <li className="text-slate-300">
-                                <Link to="/equipo" className="font-semibold text-indigo-400 hover:text-indigo-300">
+                                <Link to="/team" className="font-semibold text-indigo-400 hover:text-indigo-300">
                                     Equipo
                                 </Link>
                             </li>

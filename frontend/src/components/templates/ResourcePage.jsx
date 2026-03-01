@@ -15,7 +15,8 @@ export default function ResourcePage({
     initialFormValues,
     validate, // Función de validación personalizada
     renderRow, // Cómo se dibuja la fila
-    renderForm // Cómo se dibujan los inputs
+    renderForm,
+    canCreate = true
 }) {
     const [items, setItems] = useState([]);
     const [loading, setLoading] = useState(true);
@@ -69,13 +70,15 @@ export default function ResourcePage({
     return (
         <div className="space-y-4">
             <div className="flex items-center justify-between">
-                <h1 className="text-2xl font-bold text-white">{title}</h1>
-                <button
-                    onClick={() => setOpen(true)}
-                    className="px-4 py-2 text-white transition-colors bg-indigo-600 rounded-lg cursor-pointer hover:bg-indigo-700"
-                >
-                    + Añadir {resourceName}
-                </button>
+                <h1 className="text-2xl font-bold text-black">{title}</h1>
+                {canCreate && (
+                    <button
+                        onClick={() => setOpen(true)}
+                        className="px-4 py-2 text-white transition-colors bg-indigo-600 rounded-lg cursor-pointer hover:bg-indigo-700"
+                    >
+                        + Añadir {resourceName}
+                    </button>
+                )}
             </div>
 
             <SearchInput
@@ -105,14 +108,16 @@ export default function ResourcePage({
                 )}
             </Table>
 
-            <SlideOver
-                open={open}
-                onClose={handleClose}
-                onSave={handleSubmit}
-                title={`Nuevo ${resourceName}`}
-            >
-                {renderForm(formData, handleChange, errors)}
-            </SlideOver>
+            {canCreate && (
+                <SlideOver
+                    open={open}
+                    onClose={handleClose}
+                    onSave={handleSubmit}
+                    title={`Nuevo ${resourceName}`}
+                >
+                    {renderForm(formData, handleChange, errors)}
+                </SlideOver>
+            )}
         </div>
     );
 }

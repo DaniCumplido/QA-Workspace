@@ -21,6 +21,8 @@ app.use(express.json())
 app.use("/api/users", userRoutes)
 app.use("/api/projects", projectRoutes)
 
+process.env.NODE_TLS_REJECT_UNAUTHORIZED = "0";
+
 const PORT = "3000";
 app.listen(PORT, () => {
   console.log(`Servidor funcionando en http://localhost:${PORT}`);

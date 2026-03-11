@@ -9,12 +9,12 @@ import { useForm } from "../../hooks/useForm";
 export default function ResourcePage({
     title,
     endpoint,
-    resourceName, // Ej: "proyecto", "usuario"
+    resourceName,
     tableHeaders,
     searchKeys,
-    initialFormValues,
-    validate, // Función de validación personalizada
-    renderRow, // Cómo se dibuja la fila
+    initialFormValues = {}, // Valor por defecto para evitar fallos en useForm
+    validate = () => ({}),  // Función por defecto que no devuelve errores
+    renderRow,
     renderForm,
     canCreate = true
 }) {
@@ -40,12 +40,14 @@ export default function ResourcePage({
     // Lógica de búsqueda
     const { search, setSearch, filteredItems } = useSearch(items, searchKeys);
 
-    // Lógica de formulario
+    // Lógica de formulario - Solo se inicializa con valores seguros
     const { formData, errors, setErrors, handleChange, resetForm } = useForm(initialFormValues);
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        const newErrors = validate(formData);
+        
+        // Validación segura
+        const newErrors = validate ? validate(formData) : {};
         if (Object.keys(newErrors).length > 0) {
             setErrors(newErrors);
             return;
@@ -71,7 +73,8 @@ export default function ResourcePage({
         <div className="space-y-4">
             <div className="flex items-center justify-between">
                 <h1 className="text-2xl font-bold text-black">{title}</h1>
-                {canCreate && (
+                {/* Solo mostramos el botón si se permite crear Y existe el formulario */}
+                {canCreate && renderForm && (
                     <button
                         onClick={() => setOpen(true)}
                         className="px-4 py-2 text-white transition-colors bg-indigo-600 rounded-lg cursor-pointer hover:bg-indigo-700"
@@ -108,13 +111,15 @@ export default function ResourcePage({
                 )}
             </Table>
 
-            {canCreate && (
+            {/* Solo renderizamos el SlideOver de creación si están dadas las condiciones */}
+            {canCreate && renderForm && (
                 <SlideOver
                     open={open}
                     onClose={handleClose}
                     onSave={handleSubmit}
                     title={`Nuevo ${resourceName}`}
                 >
+                    {/* Aquí estaba el error: ahora es una llamada segura */}
                     {renderForm(formData, handleChange, errors)}
                 </SlideOver>
             )}

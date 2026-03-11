@@ -18,7 +18,7 @@ const createProject = async (req, res) => {
     // 2. Éxito: Usamos .json() en lugar de .send() para ser consistentes
     return res.status(201).json(project);
   } catch (error) {
-    // 3. Debug interno (tú lo ves en la consola), pero el cliente no
+    // 3. Debug interno (se ve en la consola), pero el cliente no
     console.error("DEBUG DB ERROR:", error);
 
     return res.status(500).json({

@@ -8,8 +8,9 @@ import Register from "./pages/Register";
 import Dashboard from "./pages/Dashboard";
 import Projects from "./pages/Projects";
 import ProjectLayout from "./layouts/ProjectLayout";
-import ProjectIncidents from "./pages/ProjectIncidents"
-import ProjectTests from "./pages/ProjectTests"
+import ProjectIncidents from "./pages/ProjectIncidents";
+import ProjectTests from "./pages/ProjectTests";
+import ProjectDashboard from "./pages/ProjectDashboard";
 
 // Componente para proteger rutas (R01F02-T01)
 const ProtectedRoute = ({ children, allowedRoles }) => {
@@ -30,7 +31,7 @@ const ProtectedRoute = ({ children, allowedRoles }) => {
 
   // 2. Si hay roles definidos y el usuario NO tiene uno de ellos, al dashboard
   if (allowedRoles && !allowedRoles.includes(user.role)) {
-    console.error("No tienes permisos para acceder a este recurso")
+    console.error("No tienes permisos para acceder a este recurso");
     return <Navigate to="/" replace />;
   }
 
@@ -39,29 +40,35 @@ const ProtectedRoute = ({ children, allowedRoles }) => {
 
 function App() {
   return (
-    <AuthProvider> {/* Proveedor de contexto global */}
+    <AuthProvider>
+      {" "}
+      {/* Proveedor de contexto global */}
       <BrowserRouter>
         <Routes>
-
           {/* RUTAS PRIVADAS (Requieren login) */}
-          <Route element={
-            <ProtectedRoute>
-              <MainLayout />
-            </ProtectedRoute>
-          }>
+          <Route
+            element={
+              <ProtectedRoute>
+                <MainLayout />
+              </ProtectedRoute>
+            }
+          >
             <Route path="/" element={<Dashboard />} />
             <Route path="/projects" element={<Projects />} />
             <Route path="/projects/:id" element={<ProjectLayout />}>
+              <Route path="dashboard" element={<ProjectDashboard />} />
               <Route path="tests" element={<ProjectTests />} />
               <Route path="incidents" element={<ProjectIncidents />} />
             </Route>
 
-            <Route path="/team" element={
-              <ProtectedRoute allowedRoles={['ADMIN']}>
-                <Team />
-              </ProtectedRoute>
-            } />
-
+            <Route
+              path="/team"
+              element={
+                <ProtectedRoute allowedRoles={["ADMIN"]}>
+                  <Team />
+                </ProtectedRoute>
+              }
+            />
           </Route>
 
           {/* RUTAS PÚBLICAS */}
@@ -70,7 +77,6 @@ function App() {
 
           {/* Catch-all: si la ruta no existe */}
           <Route path="*" element={<Navigate to="/" replace />} />
-
         </Routes>
       </BrowserRouter>
     </AuthProvider>

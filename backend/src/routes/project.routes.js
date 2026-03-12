@@ -4,6 +4,7 @@ const projectController = require("../controllers/project.controller");
 const { authenticate, checkRole } = require("../middlewares/authMiddleware");
 const testController = require("../controllers/test.controller")
 const issueController = require("../controllers/incidents.controller")
+const dashboardController = require("../controllers/dashboard.controller")
 
 router.get("/", authenticate, projectController.getAllProjects);
 router.post(
@@ -12,6 +13,9 @@ router.post(
   checkRole(["ADMIN", "MANAGER"]),
   projectController.createProject,
 );
+
+
+router.get("/:projectId/dashboard", authenticate, dashboardController.getProjectDashboard)
 
 
 router.get("/:projectId/tests", authenticate, testController.getAllProjectTests);

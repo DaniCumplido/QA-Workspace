@@ -20,7 +20,7 @@ export default function ProjectIssues() {
     OPEN: "bg-gray-500/10 text-gray-400 border-gray-500/20",
     ANALISIS: "bg-indigo-500/10 text-indigo-400 border-indigo-400/20",
     RESOLVED: "bg-green-500/10 text-green-400 border-green-500/20",
-    CLOSED: "bg-white/5 text-white/40 border-white/10",
+    CLOSED: "bg-green-500/10 text-green-400 border-green-500/20",
   };
 
   // Función para actualizar el estado o severidad desde el detalle

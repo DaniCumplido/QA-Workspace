@@ -62,7 +62,9 @@ export default function ProjectTests() {
       setIssueData(null);
       setRefreshSignal((prev) => prev + 1);
     } catch (error) {
-      alert("Error al generar la incidencia. El estado de la prueba no se ha cambiado.");
+      alert(
+        "Error al generar la incidencia. El estado de la prueba no se ha cambiado.",
+      );
     } finally {
       setIsSubmitting(false);
     }
@@ -124,13 +126,34 @@ export default function ProjectTests() {
                   test.status === "PASSED"
                     ? "text-green-400 border-green-400/20 bg-green-400/10"
                     : test.status === "FAILED"
-                    ? "text-red-400 border-red-400/20 bg-red-400/10"
-                    : "text-blue-400 border-blue-400/20 bg-blue-400/10"
+                      ? "text-red-400 border-red-400/20 bg-red-400/10"
+                      : test.status === "RETEST"
+                        ? "text-orange-400 border-orange-400/20 bg-orange-400/10" // Estilo para RETEST
+                        : "text-blue-400 border-blue-400/20 bg-blue-400/10"
                 }`}
               >
-                <option value="PENDING" className="bg-gray-900">PENDING</option>
-                <option value="PASSED" className="bg-gray-900">PASSED</option>
-                <option value="FAILED" className="bg-gray-900">FAILED</option>
+                {/* Si el estado es RETEST, lo mostramos como opción seleccionada 
+                  pero deshabilitada para que no se pueda volver a poner a mano 
+                  si se cambia a otro estado.
+                */}
+                {test.status === "RETEST" && (
+                  <option
+                    value="RETEST"
+                    disabled
+                    className="bg-gray-900 text-gray-500"
+                  >
+                    RETEST (Automático)
+                  </option>
+                )}
+                <option value="PENDING" className="bg-gray-900">
+                  PENDING
+                </option>
+                <option value="PASSED" className="bg-gray-900">
+                  PASSED
+                </option>
+                <option value="FAILED" className="bg-gray-900">
+                  FAILED
+                </option>
               </select>
             </td>
             <td className="px-6 py-4 text-right space-x-3.5">
@@ -159,7 +182,9 @@ export default function ProjectTests() {
                 onChange={handleChange}
                 className="w-full p-2 text-white rounded bg-white/5 border-white/10 focus:outline-indigo-500"
               />
-              {errors.title && <p className="mt-1 text-xs text-red-400">{errors.title}</p>}
+              {errors.title && (
+                <p className="mt-1 text-xs text-red-400">{errors.title}</p>
+              )}
             </div>
             <div>
               <label className="text-sm text-white">Pasos</label>
@@ -170,7 +195,9 @@ export default function ProjectTests() {
                 rows={4}
                 className="w-full p-2 text-white rounded bg-white/5 border-white/10 focus:outline-indigo-500"
               />
-              {errors.steps && <p className="mt-1 text-xs text-red-400">{errors.steps}</p>}
+              {errors.steps && (
+                <p className="mt-1 text-xs text-red-400">{errors.steps}</p>
+              )}
             </div>
             <div>
               <label className="text-sm text-white">Resultado esperado</label>
@@ -181,7 +208,9 @@ export default function ProjectTests() {
                 rows={4}
                 className="w-full p-2 text-white rounded bg-white/5 border-white/10 focus:outline-indigo-500"
               />
-              {errors.expected && <p className="mt-1 text-xs text-red-400">{errors.expected}</p>}
+              {errors.expected && (
+                <p className="mt-1 text-xs text-red-400">{errors.expected}</p>
+              )}
             </div>
           </div>
         )}
@@ -198,7 +227,9 @@ export default function ProjectTests() {
         {selectedTest && (
           <div className="space-y-6">
             <div>
-              <label className="block text-xs font-medium text-gray-400 uppercase">Título</label>
+              <label className="block text-xs font-medium text-gray-400 uppercase">
+                Título
+              </label>
               {isEditMode ? (
                 <input
                   name="title"
@@ -210,7 +241,9 @@ export default function ProjectTests() {
               )}
             </div>
             <div>
-              <label className="block text-xs font-medium text-gray-400 uppercase">Pasos</label>
+              <label className="block text-xs font-medium text-gray-400 uppercase">
+                Pasos
+              </label>
               {isEditMode ? (
                 <textarea
                   name="steps"
@@ -219,11 +252,15 @@ export default function ProjectTests() {
                   className="w-full p-2 mt-1 text-white rounded bg-white/5 border-white/10"
                 />
               ) : (
-                <p className="mt-1 text-sm text-gray-300 whitespace-pre-wrap">{selectedTest.steps}</p>
+                <p className="mt-1 text-sm text-gray-300 whitespace-pre-wrap">
+                  {selectedTest.steps}
+                </p>
               )}
             </div>
             <div>
-              <label className="block text-xs font-medium text-gray-400 uppercase">Resultado Esperado</label>
+              <label className="block text-xs font-medium text-gray-400 uppercase">
+                Resultado Esperado
+              </label>
               {isEditMode ? (
                 <textarea
                   name="expected"
@@ -232,7 +269,9 @@ export default function ProjectTests() {
                   className="w-full p-2 mt-1 text-white rounded bg-white/5 border-white/10"
                 />
               ) : (
-                <p className="mt-1 text-sm text-gray-300">{selectedTest.expected}</p>
+                <p className="mt-1 text-sm text-gray-300">
+                  {selectedTest.expected}
+                </p>
               )}
             </div>
             {!isEditMode && (
@@ -259,7 +298,8 @@ export default function ProjectTests() {
         {issueData && (
           <div className="space-y-4">
             <p className="text-xs text-amber-400 bg-amber-400/10 p-2 rounded">
-              La prueba se marcará como FAILED solo si la incidencia se registra con éxito.
+              La prueba se marcará como FAILED solo si la incidencia se registra
+              con éxito.
             </p>
             <div>
               <label className="text-white text-sm">Título de Incidencia</label>
@@ -271,7 +311,9 @@ export default function ProjectTests() {
               />
             </div>
             <div>
-              <label className="text-white text-sm">Descripción / Evidencia</label>
+              <label className="text-white text-sm">
+                Descripción / Evidencia
+              </label>
               <textarea
                 name="description"
                 defaultValue={issueData.description}

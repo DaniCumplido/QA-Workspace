@@ -67,4 +67,61 @@ const getAllIssues = async (req, res) => {
   }
 };
 
-module.exports = { createIssue, getAllIssues };
+const updateIssue = async (req, res) => {
+  // 1. Extraemos issueId (debe coincidir con el nombre en tu router: :issueId)
+  const { issueId } = req.params; 
+  const { status, severity, title, description } = req.body;
+
+  try {
+    // 2. Usar issueId, no 'id'
+    const currentIssue = await prisma.issue.findUnique({ 
+      where: { id: issueId } 
+    });
+
+    if (!currentIssue) {
+      return res.status(404).json({ message: "Incidencia no encontrada" });
+    }
+
+    // --- LÓGICA DE MÁQUINA DE ESTADOS ---
+    if (status && status !== currentIssue.status) {
+      const flow = ["OPEN", "ANALISIS", "RESOLVED", "CLOSED"];
+      const currentIndex = flow.indexOf(currentIssue.status);
+      const nextIndex = flow.indexOf(status);
+      const distance = Math.abs(nextIndex - currentIndex);
+
+      if (distance > 1) {
+        return res.status(400).json({ 
+          message: `Movimiento no permitido de ${currentIssue.status} a ${status}` 
+        });
+      }
+    }
+
+    // --- ACTUALIZACIÓN ---
+    const updatedIssue = await prisma.$transaction(async (tx) => {
+      const issue = await tx.issue.update({
+        where: { id: issueId }, // Usar issueId aquí también
+        data: {
+          status: status || currentIssue.status,
+          severity: severity || currentIssue.severity,
+          title: title || currentIssue.title,
+          description: description || currentIssue.description,
+        },
+      });
+
+      if (status === "CLOSED") {
+        await tx.testCase.update({
+          where: { id: issue.testCaseId },
+          data: { status: "RETEST" }
+        });
+      }
+      return issue;
+    });
+
+    return res.status(200).json(updatedIssue);
+  } catch (error) {
+    console.error("ERROR AL ACTUALIZAR ISSUE:", error);
+    return res.status(500).json({ message: "Error interno al actualizar" });
+  }
+};
+
+module.exports = { createIssue, getAllIssues, updateIssue };

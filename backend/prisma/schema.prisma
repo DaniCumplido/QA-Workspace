@@ -25,6 +25,7 @@ enum TestStatus {
   PENDING
   PASSED
   FAILED
+  RETEST
 }
 
 enum IssueStatus {

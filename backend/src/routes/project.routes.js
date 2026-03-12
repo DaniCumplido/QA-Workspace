@@ -21,5 +21,6 @@ router.patch("/:projectId/tests/:testId", authenticate, testController.updateTes
 
 router.get("/:projectId/issues", authenticate, issueController.getAllIssues);
 router.post("/:projectId/issues", authenticate, issueController.createIssue);
+router.patch("/:projectId/issues/:issueId", authenticate, issueController.updateIssue);
 
 module.exports = router;

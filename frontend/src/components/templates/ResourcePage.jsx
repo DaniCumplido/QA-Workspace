@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import api from "../../api/client";
 import { Table } from "../ui/Table";
 import { SearchInput } from "../ui/SearchInput";
@@ -12,8 +12,8 @@ export default function ResourcePage({
     resourceName,
     tableHeaders,
     searchKeys,
-    initialFormValues = {}, // Valor por defecto para evitar fallos en useForm
-    validate = () => ({}),  // Función por defecto que no devuelve errores
+    initialFormValues = {},
+    validate = () => ({}),
     renderRow,
     renderForm,
     canCreate = true
@@ -22,31 +22,33 @@ export default function ResourcePage({
     const [loading, setLoading] = useState(true);
     const [open, setOpen] = useState(false);
 
-    // Lógica de carga
-    useEffect(() => {
-        const loadData = async () => {
-            try {
-                const response = await api.get(endpoint);
-                setItems(response.data);
-            } catch (error) {
-                console.error(`Error cargando ${endpoint}:`, error);
-            } finally {
-                setLoading(false);
-            }
-        };
-        loadData();
+    // 1. Extraemos la lógica de carga para poder reutilizarla
+    const fetchData = useCallback(async () => {
+        // No ponemos loading(true) aquí para evitar parpadeos molestos 
+        // en actualizaciones pequeñas, pero puedes ponerlo si prefieres.
+        try {
+            const response = await api.get(endpoint);
+            setItems(response.data);
+        } catch (error) {
+            console.error(`Error cargando ${endpoint}:`, error);
+        } finally {
+            setLoading(false);
+        }
     }, [endpoint]);
+
+    // Carga inicial
+    useEffect(() => {
+        fetchData();
+    }, [fetchData]);
 
     // Lógica de búsqueda
     const { search, setSearch, filteredItems } = useSearch(items, searchKeys);
 
-    // Lógica de formulario - Solo se inicializa con valores seguros
+    // Lógica de formulario
     const { formData, errors, setErrors, handleChange, resetForm } = useForm(initialFormValues);
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        
-        // Validación segura
         const newErrors = validate ? validate(formData) : {};
         if (Object.keys(newErrors).length > 0) {
             setErrors(newErrors);
@@ -54,8 +56,9 @@ export default function ResourcePage({
         }
 
         try {
-            const response = await api.post(endpoint, formData);
-            setItems((prev) => [...prev, response.data]);
+            await api.post(endpoint, formData);
+            // Tras crear, recargamos todos los datos para asegurar sincronía con el backend
+            fetchData(); 
             setOpen(false);
             resetForm();
         } catch (error) {
@@ -72,12 +75,11 @@ export default function ResourcePage({
     return (
         <div className="space-y-4">
             <div className="flex items-center justify-between">
-                <h1 className="text-2xl font-bold text-black">{title}</h1>
-                {/* Solo mostramos el botón si se permite crear Y existe el formulario */}
+                <h1 className="text-2xl font-bold text-slate-200">{title}</h1>
                 {canCreate && renderForm && (
                     <button
                         onClick={() => setOpen(true)}
-                        className="px-4 py-2 text-white transition-colors bg-indigo-600 rounded-lg cursor-pointer hover:bg-indigo-700"
+                        className="px-4 py-2 text-white transition-colors bg-indigo-600 rounded-lg cursor-pointer hover:bg-indigo-700 font-medium"
                     >
                         + Añadir {resourceName}
                     </button>
@@ -107,11 +109,11 @@ export default function ResourcePage({
                         </td>
                     </tr>
                 ) : (
-                    filteredItems.map((item) => renderRow(item))
+                    /* 2. AQUÍ ESTÁ EL CAMBIO CLAVE: Pasamos fetchData a cada fila */
+                    filteredItems.map((item) => renderRow(item, fetchData))
                 )}
             </Table>
 
-            {/* Solo renderizamos el SlideOver de creación si están dadas las condiciones */}
             {canCreate && renderForm && (
                 <SlideOver
                     open={open}
@@ -119,7 +121,6 @@ export default function ResourcePage({
                     onSave={handleSubmit}
                     title={`Nuevo ${resourceName}`}
                 >
-                    {/* Aquí estaba el error: ahora es una llamada segura */}
                     {renderForm(formData, handleChange, errors)}
                 </SlideOver>
             )}

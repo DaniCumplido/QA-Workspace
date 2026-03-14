@@ -6,7 +6,9 @@ import { SlideOver } from "../components/ui/SideOver";
 
 export default function ProjectIssues() {
   const { id: projectId } = useParams();
-  const [refreshSignal, setRefreshSignal] = useState(0);
+  
+  // Almacenamos la referencia a la función de refresco del template
+  const [tableRefresh, setTableRefresh] = useState(null);
   const [selectedIssue, setSelectedIssue] = useState(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -19,11 +21,10 @@ export default function ProjectIssues() {
   const statusColors = {
     OPEN: "bg-gray-500/10 text-gray-400 border-gray-500/20",
     ANALISIS: "bg-indigo-500/10 text-indigo-400 border-indigo-400/20",
-    RESOLVED: "bg-green-500/10 text-green-400 border-green-500/20",
-    CLOSED: "bg-green-500/10 text-green-400 border-green-500/20",
+    RESOLVED: "bg-green-500/10 text-green-400 border-green-400/20",
+    CLOSED: "bg-green-500/10 text-green-400 border-green-400/20",
   };
 
-  // Función para actualizar el estado o severidad desde el detalle
   const handleUpdateIssue = async (e) => {
     e.preventDefault();
     setIsSubmitting(true);
@@ -33,11 +34,12 @@ export default function ProjectIssues() {
 
       await api.patch(
         `/projects/${projectId}/issues/${selectedIssue.id}`,
-        data,
+        data
       );
 
       setSelectedIssue(null);
-      setRefreshSignal((prev) => prev + 1);
+      // Ejecutamos el refresh que capturamos del renderRow
+      if (tableRefresh) tableRefresh();
     } catch (error) {
       alert("Error al actualizar la incidencia");
     } finally {
@@ -45,10 +47,14 @@ export default function ProjectIssues() {
     }
   };
 
+  const openDetail = (issue, refresh) => {
+    setSelectedIssue(issue);
+    setTableRefresh(() => refresh); // Capturamos la función de recarga
+  };
+
   return (
     <>
       <ResourcePage
-        key={refreshSignal}
         title="Incidencias"
         resourceName="Incidencia"
         endpoint={`/projects/${projectId}/issues`}
@@ -61,13 +67,13 @@ export default function ProjectIssues() {
         ]}
         searchKeys={["title"]}
         canCreate={false}
-        renderRow={(issue) => (
+        renderRow={(issue, refresh) => (
           <tr
             key={issue.id}
             className="transition-colors border-t border-white/5 hover:bg-white/5"
           >
             <td className="px-6 py-4">
-              <div className="text-sm font-semibold text-black">
+              <div className="text-sm font-semibold text-slate-200">
                 {issue.title}
               </div>
               <div className="text-xs text-slate-500 truncate max-w-[250px]">
@@ -75,9 +81,9 @@ export default function ProjectIssues() {
               </div>
             </td>
             <td className="px-6 py-4">
-              <div className="text-sm text-slate-600">
+              <div className="text-sm text-slate-400">
                 {issue.testCase?.title || (
-                  <span className="italic text-slate-400 text-xs">
+                  <span className="italic text-slate-500 text-xs">
                     Manual / General
                   </span>
                 )}
@@ -99,8 +105,8 @@ export default function ProjectIssues() {
             </td>
             <td className="px-6 py-4 text-right space-x-3">
               <button
-                className="text-sm font-medium text-indigo-600 hover:text-indigo-800"
-                onClick={() => setSelectedIssue(issue)}
+                className="text-sm font-medium text-indigo-400 hover:text-indigo-300"
+                onClick={() => openDetail(issue, refresh)}
               >
                 Detalle
               </button>
@@ -109,7 +115,6 @@ export default function ProjectIssues() {
         )}
       />
 
-      {/* SLIDEOVER DE DETALLE */}
       <SlideOver
         open={!!selectedIssue}
         onClose={() => setSelectedIssue(null)}
@@ -141,7 +146,7 @@ export default function ProjectIssues() {
               <label className="block text-xs font-medium text-gray-400 uppercase">
                 Descripción / Evidencia
               </label>
-              <div className="mt-2 p-3 bg-white/5 border border-white/10 rounded-md overflow-hidden">
+              <div className="mt-2 p-3 bg-white/5 border border-white/10 rounded-md">
                 <p className="text-sm text-gray-300 whitespace-pre-wrap break-words">
                   {selectedIssue.description || "Sin descripción detallada."}
                 </p>
@@ -156,7 +161,7 @@ export default function ProjectIssues() {
                 <select
                   name="status"
                   defaultValue={selectedIssue.status}
-                  className="w-full p-2 bg-gray-800 text-white border border-white/10 rounded-md text-sm"
+                  className="w-full p-2 bg-[#1e293b] text-white border border-white/10 rounded-md text-sm outline-none focus:border-indigo-500"
                 >
                   <option value="OPEN">OPEN</option>
                   <option value="ANALISIS">ANALISIS</option>
@@ -171,7 +176,7 @@ export default function ProjectIssues() {
                 <select
                   name="severity"
                   defaultValue={selectedIssue.severity}
-                  className="w-full p-2 bg-gray-800 text-white border border-white/10 rounded-md text-sm"
+                  className="w-full p-2 bg-[#1e293b] text-white border border-white/10 rounded-md text-sm outline-none focus:border-indigo-500"
                 >
                   <option value="BAJA">BAJA</option>
                   <option value="MEDIA">MEDIA</option>

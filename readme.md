@@ -24,6 +24,7 @@ npx prisma generate
 
 # Iniciar el servidor en modo desarrollo
 npm run dev
+
 Nota: El servidor se ejecutará normalmente en http://localhost:3000
 
 2. Configuración del Frontend
@@ -37,6 +38,7 @@ npm install
 
 # Iniciar la aplicación
 npm run dev
+
 Nota: La aplicación abrirá un puerto (normalmente http://localhost:5173)
 
 🏗️ Estructura del Proyecto
@@ -55,7 +57,9 @@ src/pages/: Vistas principales.
 🔑 Credenciales de Acceso:
 
 Admin: danicumplido04@gmail.com / 123456
+
 Manager: manager@gmail.com / 123456
+
 Tester: tester@gmail.com / 123456
 
 📝 Notas de Entrega
@@ -64,8 +68,11 @@ Datos de Prueba: Se ha pre-configurado un proyecto llamado "TEST" con informaci�
 Funcionalidades Implementadas:
 
 Sistema de autenticación con control de acceso por roles (RBAC).
+
 Gestión completa de Proyectos, Pruebas e Incidencias.
+
 Generación automática de Incidencias al marcar un test como "FAILED".
+
 Dashboard interactivo por proyecto.
 
 Estado del Desarrollo: El proyecto se encuentra en una fase funcional avanzada. Actualmente, el flujo principal de trabajo (Happy Path) está 90% operativo, dejando los retoques estéticos y sistemas secundarios (AuditLog) para la fase final de pulido.
@@ -73,4 +80,5 @@ Estado del Desarrollo: El proyecto se encuentra en una fase funcional avanzada. 
 💡 Próximos Pasos:
 
 Implementación de Dashboard global (Cross-project)
+
 Sistema de auditoría (AuditLog) para trazabilidad de cambios

@@ -1,9 +1,10 @@
 Instalación
-En /backend: npm install y npx prisma generate
 
-En /frontend: npm install
+En /backend: 
+npm install
+npx prisma generate
+npm run dev
 
-Ejecución
-Backend: npm run dev (Puerto 3000)
-
-Frontend: npm run dev (Puerto 5173)
+En /frontend: 
+npm install
+npm run dev

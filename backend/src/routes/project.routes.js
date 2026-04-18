@@ -35,7 +35,7 @@ router.post("/:projectId/tests", authenticate, testController.createTest);
 router.patch(
   "/:projectId/tests/:testId",
   authenticate,
-  testController.updateTestStatus,
+  testController.updateTest
 );
 
 router.get("/:projectId/issues", authenticate, issueController.getAllIssues);
@@ -44,6 +44,13 @@ router.patch(
   "/:projectId/issues/:issueId",
   authenticate,
   issueController.updateIssue,
+);
+
+router.patch(
+  "/:id/assign",
+  authenticate,
+  checkRole(["ADMIN", "MANAGER"]),
+  projectController.assignTester
 );
 
 module.exports = router;

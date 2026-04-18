@@ -1,5 +1,5 @@
 // Buscador
-export function SearchInput({ value, onChange, placeholder = "Buscar..." }) {
+export function SearchInput({ value, onChange, placeholder = "Search..." }) {
     return (
         <div className="flex items-center px-3 py-2 transition-colors bg-white border border-gray-200 rounded-lg shadow-sm focus-within:border-blue-500">
             <span className="mr-2 text-gray-400">🔍</span>

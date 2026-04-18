@@ -5,10 +5,11 @@ import {
     BugAntIcon
 } from '@heroicons/react/20/solid';
 
+// Configuración de las pestañas de navegación del proyecto
 const tabs = [
-    { name: 'Resumen', href: 'dashboard', icon: ChartBarIcon, end: true },
+    { name: 'Dashboard', href: 'dashboard', icon: ChartBarIcon, end: true },
     { name: 'Test Cases', href: 'tests', icon: ClipboardDocumentCheckIcon },
-    { name: 'Incidencias', href: 'incidents', icon: BugAntIcon },
+    { name: 'Incidents', href: 'incidents', icon: BugAntIcon },
 ];
 
 export default function ProjectTabs() {
@@ -17,9 +18,9 @@ export default function ProjectTabs() {
 
     return (
         <div>
-            {/* Vista Móvil: Un select que cambia la ruta */}
+            {/* Vista Móvil: Selector desplegable para optimizar espacio en pantallas pequeñas */}
             <div className="sm:hidden">
-                <label htmlFor="tabs" className="sr-only">Selecciona una pestaña</label>
+                <label htmlFor="tabs" className="sr-only">Select a tab</label>
                 <select
                     id="tabs"
                     onChange={(e) => navigate(e.target.value)}
@@ -31,7 +32,7 @@ export default function ProjectTabs() {
                 </select>
             </div>
 
-            {/* Vista Escritorio: Los tabs de la imagen */}
+            {/* Vista Escritorio: Navegación horizontal con indicadores de estado activo */}
             <div className="hidden sm:block">
                 <div className="border-b border-white/10">
                     <nav className="flex -mb-px space-x-8" aria-label="Tabs">
@@ -40,12 +41,13 @@ export default function ProjectTabs() {
                                 key={tab.name}
                                 to={tab.href}
                                 end={tab.end}
+                                // Gestión dinámica de clases según si la ruta coincide con el enlace
                                 className={({ isActive }) => `
-                  group inline-flex items-center border-b-2 py-4 px-1 text-sm font-medium transition-colors
-                  ${isActive
+                                    group inline-flex items-center border-b-2 py-4 px-1 text-sm font-medium transition-colors
+                                    ${isActive
                                         ? 'border-indigo-400 text-indigo-400'
                                         : 'border-transparent text-gray-400 hover:border-white/20 hover:text-gray-300'}
-                `}
+                                `}
                             >
                                 <tab.icon
                                     className={`-ml-0.5 mr-2 h-5 w-5 transition-colors`}

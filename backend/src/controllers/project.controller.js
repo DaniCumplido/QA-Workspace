@@ -1,25 +1,35 @@
 const prisma = require("../config/db");
 
 const createProject = async (req, res) => {
-  const { name, description } = req.body;
+  // 1. Extraemos las fechas del body
+  const { name, description, startDate, endDate } = req.body;
 
-  // 1. Validación temprana
-  if (!name || !description) {
+  // 2. Validación ampliada
+  if (!name || !description || !startDate || !endDate) {
     return res.status(400).json({
-      message: "Nombre y descripción son obligatorios",
+      message: "Todos los campos son obligatorios: Nombre, descripción, fecha inicio y fin",
     });
   }
 
   try {
     const project = await prisma.project.create({
-      data: { name, description },
+      data: {
+        name,
+        description,
+        // Convertimos a objeto Date para que Prisma/PostgreSQL no den problemas
+        startDate: new Date(startDate),
+        endDate: new Date(endDate)
+      },
     });
 
-    // 2. Éxito: Usamos .json() en lugar de .send() para ser consistentes
     return res.status(201).json(project);
   } catch (error) {
-    // 3. Debug interno (se ve en la consola), pero el cliente no
     console.error("DEBUG DB ERROR:", error);
+
+    // Error específico por si las fechas tienen formato inválido
+    if (error.code === 'P2002') {
+      return res.status(400).json({ message: "Ya existe un proyecto con ese nombre" });
+    }
 
     return res.status(500).json({
       message: "Error interno al procesar el proyecto",
@@ -75,12 +85,12 @@ const updateProjectStatus = async (req, res) => {
 
     // Evitar retroceder (opcional, depende de tu flujo) o saltar estados
     if (nextWeight < currentWeight) {
-        return res.status(400).json({ message: "No se puede retroceder el estado del proyecto." });
+      return res.status(400).json({ message: "No se puede retroceder el estado del proyecto." });
     }
-    
+
     if (nextWeight > currentWeight + 1) {
-      return res.status(400).json({ 
-        message: `Flujo inválido. No puedes pasar de ${project.status} a ${nextStatus} directamente.` 
+      return res.status(400).json({
+        message: `Flujo inválido. No puedes pasar de ${project.status} a ${nextStatus} directamente.`
       });
     }
 
@@ -125,4 +135,36 @@ const updateProjectStatus = async (req, res) => {
   }
 };
 
-module.exports = { createProject, getAllProjects, updateProjectStatus };
+const assignTester = async (req, res) => {
+  try {
+    const { id } = req.params; // ID del proyecto
+    const { testerId } = req.body; // ID del tester (puede ser null para desasignar)
+
+    // Validar que el proyecto existe
+    const projectExists = await prisma.project.findUnique({ where: { id } });
+    if (!projectExists) {
+      return res.status(404).json({ message: "Proyecto no encontrado" });
+    }
+
+    // Actualizar el proyecto
+    const updatedProject = await prisma.project.update({
+      where: { id },
+      data: {
+        testerId: testerId || null,
+      },
+      include: {
+        tester: true, // Devolvemos el tester actualizado para el frontend
+      },
+    });
+
+    res.json({
+      message: "Tester asignado correctamente",
+      project: updatedProject,
+    });
+  } catch (error) {
+    console.error("ASSIGN_TESTER_ERROR:", error);
+    res.status(500).json({ message: "Error al asignar el tester al proyecto" });
+  }
+};
+
+module.exports = { createProject, getAllProjects, updateProjectStatus, assignTester };

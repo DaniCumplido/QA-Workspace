@@ -5,6 +5,7 @@ const express = require("express");
 const cors = require("cors");
 const userRoutes = require("./routes/user.routes");
 const projectRoutes = require("./routes/project.routes");
+const statsRoutes = require("./routes/stats.routes")
 
 const app = express();
 
@@ -20,6 +21,7 @@ app.use(express.json())
 // Añadimos las rutas del router para usuarios
 app.use("/api/users", userRoutes)
 app.use("/api/projects", projectRoutes)
+app.use("/api/stats", statsRoutes)
 
 process.env.NODE_TLS_REJECT_UNAUTHORIZED = "0";
 

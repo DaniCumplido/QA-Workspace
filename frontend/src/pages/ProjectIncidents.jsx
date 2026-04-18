@@ -1,47 +1,55 @@
-import ResourcePage from "../components/templates/ResourcePage";
 import { useParams } from "react-router-dom";
 import { useState } from "react";
 import api from "../api/client";
+import ResourcePage from "../components/templates/ResourcePage";
 import { SlideOver } from "../components/ui/SideOver";
+import { 
+  Bug, 
+  ShieldAlert, 
+  Clock, 
+  ChevronRight, 
+  FileSearch, 
+  Activity, 
+  AlertCircle
+} from "lucide-react";
 
 export default function ProjectIssues() {
   const { id: projectId } = useParams();
   
-  // Almacenamos la referencia a la función de refresco del template
   const [tableRefresh, setTableRefresh] = useState(null);
   const [selectedIssue, setSelectedIssue] = useState(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const severityColors = {
-    BAJA: "text-blue-400 border-blue-400/20 bg-blue-400/10",
-    MEDIA: "text-amber-400 border-amber-400/20 bg-amber-400/10",
-    ALTA: "text-red-400 border-red-400/20 bg-red-400/10",
+  // Mapeo de estilos según la severidad (traducción de backend: BAJA/MEDIA/ALTA)
+  const severityStyles = {
+    BAJA: "text-cyan-600 border-cyan-200 bg-cyan-50",
+    MEDIA: "text-amber-600 border-amber-200 bg-amber-50",
+    ALTA: "text-rose-600 border-rose-200 bg-rose-50 font-bold shadow-sm",
   };
 
-  const statusColors = {
-    OPEN: "bg-gray-500/10 text-gray-400 border-gray-500/20",
-    ANALISIS: "bg-indigo-500/10 text-indigo-400 border-indigo-400/20",
-    RESOLVED: "bg-green-500/10 text-green-400 border-green-400/20",
-    CLOSED: "bg-green-500/10 text-green-400 border-green-400/20",
+  // Mapeo de estilos según el estado de la incidencia
+  const statusStyles = {
+    OPEN: "bg-slate-100 text-slate-600 border-slate-200",
+    ANALISIS: "bg-indigo-50 text-indigo-600 border-indigo-200",
+    RESOLVED: "bg-emerald-50 text-emerald-600 border-emerald-200",
+    CLOSED: "bg-slate-800 text-white border-slate-900",
   };
 
+  /**
+   * Actualiza el estado o severidad de una incidencia específica.
+   * Envía los datos del formulario al endpoint del proyecto.
+   */
   const handleUpdateIssue = async (e) => {
     e.preventDefault();
     setIsSubmitting(true);
     try {
       const formData = new FormData(e.target);
       const data = Object.fromEntries(formData.entries());
-
-      await api.patch(
-        `/projects/${projectId}/issues/${selectedIssue.id}`,
-        data
-      );
-
+      await api.patch(`/projects/${projectId}/issues/${selectedIssue.id}`, data);
       setSelectedIssue(null);
-      // Ejecutamos el refresh que capturamos del renderRow
-      if (tableRefresh) tableRefresh();
+      if (tableRefresh) tableRefresh(); // Recarga la tabla tras el éxito
     } catch (error) {
-      alert("Error al actualizar la incidencia");
+      alert("Failed to update incident details");
     } finally {
       setIsSubmitting(false);
     }
@@ -49,147 +57,145 @@ export default function ProjectIssues() {
 
   const openDetail = (issue, refresh) => {
     setSelectedIssue(issue);
-    setTableRefresh(() => refresh); // Capturamos la función de recarga
+    setTableRefresh(() => refresh);
   };
 
   return (
     <>
+      {/* Componente base para listados: gestiona fetch, filtros y paginación */}
       <ResourcePage
-        title="Incidencias"
-        resourceName="Incidencia"
+        title="Issue Tracker"
+        resourceName="Issue"
         endpoint={`/projects/${projectId}/issues`}
-        tableHeaders={[
-          "Incidencia",
-          "Caso de Prueba",
-          "Severidad",
-          "Estado",
-          "Acciones",
-        ]}
+        tableHeaders={["Issue Details", "Related Test Case", "Severity", "Status", "Actions"]}
         searchKeys={["title"]}
-        canCreate={false}
+        canCreate={false} // Las incidencias se crean normalmente desde la ejecución de tests
         renderRow={(issue, refresh) => (
-          <tr
-            key={issue.id}
-            className="transition-colors border-t border-white/5 hover:bg-white/5"
-          >
-            <td className="px-6 py-4">
-              <div className="text-sm font-semibold text-slate-200">
-                {issue.title}
-              </div>
-              <div className="text-xs text-slate-500 truncate max-w-[250px]">
-                {issue.description || "Sin descripción"}
-              </div>
-            </td>
-            <td className="px-6 py-4">
-              <div className="text-sm text-slate-400">
-                {issue.testCase?.title || (
-                  <span className="italic text-slate-500 text-xs">
-                    Manual / General
-                  </span>
-                )}
+          <tr key={issue.id} className="group border-b border-slate-100 hover:bg-rose-50/30 transition-all">
+            <td className="px-6 py-5">
+              <div className="flex flex-col gap-1">
+                <div className="text-sm font-bold text-slate-800 group-hover:text-rose-600 transition-colors flex items-center gap-2">
+                  <Bug size={14} className="text-rose-500 opacity-70" />
+                  {issue.title}
+                </div>
+                <div className="text-[11px] text-slate-500 font-medium truncate max-w-[300px] italic">
+                  {issue.description ? issue.description.substring(0, 60) + "..." : "No description provided"}
+                </div>
               </div>
             </td>
-            <td className="px-6 py-4">
-              <span
-                className={`px-2 py-1 text-[10px] font-bold rounded border ${severityColors[issue.severity]}`}
-              >
-                {issue.severity}
+            <td className="px-6 py-5">
+              <div className="text-[10px] font-bold text-slate-500 bg-slate-100 px-2 py-1 rounded border border-slate-200 inline-flex items-center gap-1.5">
+                <FileSearch size={10} />
+                {issue.testCase?.title ? issue.testCase.title : "Manual / Unlinked"}
+              </div>
+            </td>
+            <td className="px-6 py-5">
+              <span className={`px-2 py-0.5 text-[9px] font-black rounded-full border uppercase tracking-widest ${severityStyles[issue.severity]}`}>
+                {issue.severity === 'BAJA' ? 'Low' : issue.severity === 'MEDIA' ? 'Medium' : 'High'}
               </span>
             </td>
-            <td className="px-6 py-4">
-              <span
-                className={`px-2 py-1 text-[10px] font-bold rounded border ${statusColors[issue.status]}`}
-              >
+            <td className="px-6 py-5">
+              <span className={`px-2 py-0.5 text-[9px] font-black rounded-md border uppercase tracking-tighter ${statusStyles[issue.status]}`}>
                 {issue.status}
               </span>
             </td>
-            <td className="px-6 py-4 text-right space-x-3">
+            <td className="px-6 py-5 text-right">
               <button
-                className="text-sm font-medium text-indigo-400 hover:text-indigo-300"
+                className="inline-flex items-center gap-1 text-[11px] font-black uppercase tracking-widest text-indigo-600 hover:text-indigo-800 transition-colors group/btn"
                 onClick={() => openDetail(issue, refresh)}
               >
-                Detalle
+                View Details
+                <ChevronRight size={14} className="group-hover/btn:translate-x-1 transition-transform" />
               </button>
             </td>
           </tr>
         )}
       />
 
+      {/* Panel lateral para edición rápida y visualización técnica */}
       <SlideOver
         open={!!selectedIssue}
         onClose={() => setSelectedIssue(null)}
         onSave={handleUpdateIssue}
-        title="Detalle de Incidencia"
+        title="Incident Analysis"
         isSubmitting={isSubmitting}
       >
         {selectedIssue && (
-          <div className="space-y-6">
-            <div>
-              <label className="block text-xs font-medium text-gray-400 uppercase">
-                Título
-              </label>
-              <p className="mt-1 text-lg font-semibold text-white">
-                {selectedIssue.title}
-              </p>
+          <div className="space-y-8 mt-4">
+            <div className="flex justify-between items-start gap-4 border-b border-white/5 pb-6">
+              <div className="space-y-1">
+                <label className="text-[10px] font-black text-indigo-500 uppercase tracking-widest">Incident Title</label>
+                <h3 className="text-xl font-black text-white leading-tight uppercase tracking-tight">
+                  {selectedIssue.title}
+                </h3>
+              </div>
+              <div className="p-3 rounded-xl bg-rose-500/10 border border-rose-500/20 text-rose-500">
+                <ShieldAlert size={24} />
+              </div>
             </div>
 
-            <div>
-              <label className="block text-xs font-medium text-gray-400 uppercase">
-                Caso de Prueba Relacionado
+            <div className="space-y-2">
+              <label className="flex items-center gap-2 text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1">
+                <AlertCircle size={12} className="text-indigo-500" />
+                Linked Test Case
               </label>
-              <p className="mt-1 text-sm text-indigo-300">
-                {selectedIssue.testCase?.title || "N/A"}
-              </p>
-            </div>
-
-            <div>
-              <label className="block text-xs font-medium text-gray-400 uppercase">
-                Descripción / Evidencia
-              </label>
-              <div className="mt-2 p-3 bg-white/5 border border-white/10 rounded-md">
-                <p className="text-sm text-gray-300 whitespace-pre-wrap break-words">
-                  {selectedIssue.description || "Sin descripción detallada."}
+              <div className="p-4 rounded-xl bg-black/40 border border-white/5">
+                <p className="text-sm text-indigo-300 font-bold font-mono">
+                  {selectedIssue.testCase?.title || "Manual Entry / External Bug"}
                 </p>
               </div>
             </div>
 
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <label className="block text-xs font-medium text-gray-400 uppercase mb-2">
-                  Estado
-                </label>
-                <select
-                  name="status"
-                  defaultValue={selectedIssue.status}
-                  className="w-full p-2 bg-[#1e293b] text-white border border-white/10 rounded-md text-sm outline-none focus:border-indigo-500"
-                >
-                  <option value="OPEN">OPEN</option>
-                  <option value="ANALISIS">ANALISIS</option>
-                  <option value="RESOLVED">RESOLVED</option>
-                  <option value="CLOSED">CLOSED</option>
-                </select>
-              </div>
-              <div>
-                <label className="block text-xs font-medium text-gray-400 uppercase mb-2">
-                  Severidad
-                </label>
-                <select
-                  name="severity"
-                  defaultValue={selectedIssue.severity}
-                  className="w-full p-2 bg-[#1e293b] text-white border border-white/10 rounded-md text-sm outline-none focus:border-indigo-500"
-                >
-                  <option value="BAJA">BAJA</option>
-                  <option value="MEDIA">MEDIA</option>
-                  <option value="ALTA">ALTA</option>
-                </select>
+            <div className="space-y-2">
+              <label className="flex items-center gap-2 text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1">
+                <Activity size={12} className="text-indigo-500" />
+                Reproduction Steps & Logs
+              </label>
+              <div className="p-4 bg-black/50 border border-white/5 rounded-2xl font-mono text-[12px] leading-relaxed text-slate-400 min-h-[150px] shadow-inner whitespace-pre-wrap">
+                {selectedIssue.description || "No technical steps provided."}
               </div>
             </div>
 
-            <div className="pt-4 border-t border-white/10">
-              <p className="text-[10px] text-gray-500">
-                Registrada el:{" "}
-                {new Date(selectedIssue.createdAt).toLocaleString()}
-              </p>
+            <div className="grid grid-cols-1 gap-4 bg-white/5 p-5 rounded-2xl border border-white/10">
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <label className="block text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1">Status</label>
+                  <select
+                    name="status"
+                    defaultValue={selectedIssue.status}
+                    className="w-full bg-slate-900 text-white text-[11px] font-bold uppercase tracking-widest p-3 rounded-xl border border-white/10 focus:border-indigo-500 outline-none transition-all appearance-none cursor-pointer"
+                  >
+                    <option value="OPEN">Open</option>
+                    <option value="ANALISIS">In Analysis</option>
+                    <option value="RESOLVED">Resolved</option>
+                    <option value="CLOSED">Closed</option>
+                  </select>
+                </div>
+                <div className="space-y-2">
+                  <label className="block text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1">Severity</label>
+                  <select
+                    name="severity"
+                    defaultValue={selectedIssue.severity}
+                    className="w-full bg-slate-900 text-white text-[11px] font-bold uppercase tracking-widest p-3 rounded-xl border border-white/10 focus:border-rose-500 outline-none transition-all appearance-none cursor-pointer"
+                  >
+                    <option value="BAJA">Low</option>
+                    <option value="MEDIA">Medium</option>
+                    <option value="ALTA">High / Critical</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+
+            <div className="flex items-center gap-3 px-2 py-4 border-t border-white/5">
+              <div className="p-2 rounded-full bg-slate-800 text-slate-400">
+                <Clock size={12} />
+              </div>
+              <div className="space-y-0.5">
+                <p className="text-[9px] font-black text-slate-500 uppercase tracking-tighter">Timestamp</p>
+                <p className="text-[11px] font-mono text-slate-300">
+                  {new Date(selectedIssue.createdAt).toLocaleString()}
+                </p>
+              </div>
             </div>
           </div>
         )}

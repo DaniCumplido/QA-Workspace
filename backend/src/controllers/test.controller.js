@@ -49,26 +49,30 @@ const getAllProjectTests = async (req, res) => {
   }
 };
 
-const updateTestStatus = async (req, res) => {
+const updateTest = async (req, res) => {
   const { testId } = req.params;
-  const { status } = req.body;
+  const { title, steps, expected, status } = req.body; // 'expected' según tu schema
 
   try {
     const updatedTest = await prisma.testCase.update({
       where: { id: testId },
-      data: { status },
+      data: {
+        title,
+        steps,
+        expected,
+        status
+      },
     });
-
-    // LOGICA EXTRA: Si el estado es FAILED, podrías crear la incidencia aquí automáticamente
 
     res.status(200).json(updatedTest);
   } catch (error) {
-    res.status(500).json({ message: "Error al actualizar estado" });
+    console.error("UPDATE_TEST_ERROR:", error);
+    res.status(500).json({ message: "Error al actualizar los detalles del caso de prueba" });
   }
 };
 
 module.exports = {
   getAllProjectTests,
   createTest,
-  updateTestStatus,
+  updateTest
 };

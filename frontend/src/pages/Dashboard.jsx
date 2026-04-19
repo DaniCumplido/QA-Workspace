@@ -69,7 +69,7 @@ export default function Dashboard() {
                 {/* ACCIONES: Registro de miembros (solo admin) y lista de proyectos */}
                 <div className="flex gap-3">
                     {user.role === 'ADMIN' && (
-                        <Link to="/register" className="flex items-center gap-2 bg-white text-black px-5 py-2.5 rounded-2xl font-black text-xs uppercase tracking-wider hover:bg-indigo-500 hover:text-white transition-all shadow-lg shadow-white/5">
+                        <Link to="/team" className="flex items-center gap-2 bg-white text-black px-5 py-2.5 rounded-2xl font-black text-xs uppercase tracking-wider hover:bg-indigo-500 hover:text-white transition-all shadow-lg shadow-white/5">
                             <UserPlus size={16} />
                             Add Member
                         </Link>

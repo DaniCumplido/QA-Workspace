@@ -105,7 +105,7 @@ export default function Dashboard() {
                                 </p>
                             </div>
                         </div>
-                        <Link to="/incidencias" className="px-6 py-2 bg-emerald-500/10 hover:bg-emerald-500 text-emerald-400 hover:text-black rounded-xl text-xs font-black uppercase transition-all border border-emerald-500/20">
+                        <Link to="/projects" className="px-6 py-2 bg-emerald-500/10 hover:bg-emerald-500 text-emerald-400 hover:text-black rounded-xl text-xs font-black uppercase transition-all border border-emerald-500/20">
                             Start Verification →
                         </Link>
                     </div>
